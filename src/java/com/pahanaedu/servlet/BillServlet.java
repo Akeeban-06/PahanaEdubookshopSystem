@@ -28,73 +28,35 @@ public class BillServlet extends HttpServlet {
             throws ServletException, IOException {
         String pathInfo = request.getPathInfo();
         
-        if (pathInfo == null || pathInfo.equals("/")) {
-            response.sendRedirect(request.getContextPath() + "/dashboard");
-            return;
-        }
-        
-        try {
-            if (pathInfo.equals("/create")) {
-                // Show bill creation form
-                List<Customer> customers = customerDAO.getAllCustomers();
-                List<Item> items = itemDAO.getAllItems();
-                
-                request.setAttribute("customers", customers);
-                request.setAttribute("items", items);
-                request.getRequestDispatcher("/WEB-INF/views/bill/create.jsp").forward(request, response);
-                
-            } else if (pathInfo.equals("/view")) {
-                // View bill details
-                int billId = Integer.parseInt(request.getParameter("billId"));
-                Bill bill = billDAO.getBillById(billId);
-                
-                if (bill == null) {
-                    response.sendRedirect(request.getContextPath() + "/dashboard?error=Bill+not+found");
-                    return;
-                }
-                
+        if (pathInfo.equals("/create")) {
+            // Show bill creation form
+            List<Customer> customers = customerDAO.getAllCustomers();
+            List<Item> items = itemDAO.getAllItems();
+            request.setAttribute("customers", customers);
+            request.setAttribute("items", items);
+            request.getRequestDispatcher("/WEB-INF/views/bill/create.jsp").forward(request, response);
+        } else if (pathInfo.equals("/view")) {
+            // View bill details - FIXED VERSION
+            int billId = Integer.parseInt(request.getParameter("billId"));
+            Bill bill = billDAO.getBillById(billId);
+            
+            if (bill != null) {
+                // FIXED: Use getCustomerById instead of getCustomerByAccountNumber
                 Customer customer = customerDAO.getCustomerById(bill.getCustomerId());
                 
-                if (customer == null) {
-                    response.sendRedirect(request.getContextPath() + "/dashboard?error=Customer+not+found");
-                    return;
-                }
+                // Debug logging (you can remove these after testing)
+                System.out.println("Bill ID: " + billId);
+                System.out.println("Bill found: " + (bill != null));
+                System.out.println("Bill items count: " + (bill.getBillItems() != null ? bill.getBillItems().size() : 0));
+                System.out.println("Customer found: " + (customer != null));
                 
                 request.setAttribute("bill", bill);
                 request.setAttribute("customer", customer);
                 request.getRequestDispatcher("/WEB-INF/views/bill/view.jsp").forward(request, response);
-                
-            } else if (pathInfo.equals("/print")) {
-                // Print optimized version of bill
-                int billId = Integer.parseInt(request.getParameter("billId"));
-                Bill bill = billDAO.getBillById(billId);
-                
-                if (bill == null) {
-                    response.sendRedirect(request.getContextPath() + "/dashboard?error=Bill+not+found");
-                    return;
-                }
-                
-                Customer customer = customerDAO.getCustomerById(bill.getCustomerId());
-                request.setAttribute("bill", bill);
-                request.setAttribute("customer", customer);
-                request.setAttribute("printMode", true);
-                request.getRequestDispatcher("/WEB-INF/views/bill/view.jsp").forward(request, response);
-                
-            } else if (pathInfo.equals("/customer")) {
-                // View all bills for a customer
-                int customerId = Integer.parseInt(request.getParameter("customerId"));
-                List<Bill> bills = billDAO.getBillsByCustomer(customerId);
-                Customer customer = customerDAO.getCustomerById(customerId);
-                
-                request.setAttribute("bills", bills);
-                request.setAttribute("customer", customer);
-                request.getRequestDispatcher("/WEB-INF/views/bill/customerBills.jsp").forward(request, response);
+            } else {
+                request.setAttribute("error", "Bill not found");
+                response.sendRedirect(request.getContextPath() + "/dashboard");
             }
-        } catch (NumberFormatException e) {
-            response.sendRedirect(request.getContextPath() + "/dashboard?error=Invalid+ID+format");
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/dashboard?error=Server+error");
         }
     }
     
@@ -104,27 +66,20 @@ public class BillServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         
         if (pathInfo.equals("/create")) {
-            try {
-                int customerId = Integer.parseInt(request.getParameter("customerId"));
-                String[] itemIds = request.getParameterValues("itemId");
-                String[] quantities = request.getParameterValues("quantity");
-                
-                if (itemIds == null || quantities == null || itemIds.length == 0) {
-                    request.setAttribute("error", "Please select at least one item");
-                    doGet(request, response);
-                    return;
-                }
-                
+            // Create new bill
+            int customerId = Integer.parseInt(request.getParameter("customerId"));
+            String[] itemIds = request.getParameterValues("itemId");
+            String[] quantities = request.getParameterValues("quantity");
+            
+            if (itemIds != null && quantities != null) {
                 BigDecimal totalAmount = BigDecimal.ZERO;
                 List<BillItem> billItems = new ArrayList<>();
-                boolean validItems = false;
                 
+                // Calculate total and create bill items
                 for (int i = 0; i < itemIds.length; i++) {
                     if (!itemIds[i].isEmpty() && !quantities[i].isEmpty()) {
                         int itemId = Integer.parseInt(itemIds[i]);
                         int quantity = Integer.parseInt(quantities[i]);
-                        
-                        if (quantity <= 0) continue;
                         
                         Item item = itemDAO.getItemById(itemId);
                         if (item != null && item.getStock() >= quantity) {
@@ -135,53 +90,40 @@ public class BillServlet extends HttpServlet {
                             billItem.setItemId(itemId);
                             billItem.setQuantity(quantity);
                             billItem.setPrice(item.getPrice());
-                            billItem.setItemName(item.getItemName());
                             billItems.add(billItem);
-                            validItems = true;
                         }
                     }
                 }
                 
-                if (!validItems) {
-                    request.setAttribute("error", "No valid items selected");
-                    doGet(request, response);
-                    return;
-                }
-                
-                // Create bill
-                Bill bill = new Bill();
-                bill.setCustomerId(customerId);
-                bill.setTotalAmount(totalAmount);
-                bill.setBillDate(new java.util.Date());
-                
-                int billId = billDAO.createBill(bill);
-                
-                if (billId <= 0) {
-                    request.setAttribute("error", "Failed to create bill");
-                    doGet(request, response);
-                    return;
-                }
-                
-                // Add bill items and update stock
-                for (BillItem billItem : billItems) {
-                    billItem.setBillId(billId);
-                    billDAO.addBillItem(billItem);
+                if (!billItems.isEmpty()) {
+                    // Create bill
+                    Bill bill = new Bill(customerId, totalAmount);
+                    int billId = billDAO.createBill(bill);
                     
-                    // Update stock
-                    Item item = itemDAO.getItemById(billItem.getItemId());
-                    itemDAO.updateStock(billItem.getItemId(), 
-                        item.getStock() - billItem.getQuantity());
+                    if (billId > 0) {
+                        // Add bill items and update stock
+                        for (BillItem billItem : billItems) {
+                            billItem.setBillId(billId);
+                            billDAO.addBillItem(billItem);
+                            
+                            // Update stock
+                            Item item = itemDAO.getItemById(billItem.getItemId());
+                            itemDAO.updateStock(billItem.getItemId(), 
+                                item.getStock() - billItem.getQuantity());
+                        }
+                        
+                        response.sendRedirect(request.getContextPath() + 
+                            "/bill/view?billId=" + billId + "&success=Bill created successfully");
+                    } else {
+                        request.setAttribute("error", "Failed to create bill.");
+                        doGet(request, response);
+                    }
+                } else {
+                    request.setAttribute("error", "No valid items selected.");
+                    doGet(request, response);
                 }
-                
-                response.sendRedirect(request.getContextPath() + 
-                    "/bill/view?billId=" + billId + "&success=Bill+created+successfully");
-                
-            } catch (NumberFormatException e) {
-                request.setAttribute("error", "Invalid input format");
-                doGet(request, response);
-            } catch (Exception e) {
-                e.printStackTrace();
-                request.setAttribute("error", "An error occurred while creating the bill");
+            } else {
+                request.setAttribute("error", "Please select items and quantities.");
                 doGet(request, response);
             }
         }
