@@ -33,29 +33,30 @@ public class CustomerServlet extends HttpServlet {
             // Show edit customer form
             String accountNumber = request.getParameter("accountNumber");
             Customer customer = customerDAO.getCustomerByAccountNumber(accountNumber);
-            if (customer != null) {
-                request.setAttribute("customer", customer);
-                request.getRequestDispatcher("/WEB-INF/views/customer/edit.jsp").forward(request, response);
-            } else {
-                request.setAttribute("error", "Customer not found");
-                List<Customer> customers = customerDAO.getAllCustomers();
-                request.setAttribute("customers", customers);
-                request.getRequestDispatcher("/WEB-INF/views/customer/list.jsp").forward(request, response);
-            }
+            request.setAttribute("customer", customer);
+            request.getRequestDispatcher("/WEB-INF/views/customer/edit.jsp").forward(request, response);
 
         } else if (pathInfo.equals("/view")) {
             // View customer details
             String accountNumber = request.getParameter("accountNumber");
             Customer customer = customerDAO.getCustomerByAccountNumber(accountNumber);
-            if (customer != null) {
-                request.setAttribute("customer", customer);
-                request.getRequestDispatcher("/WEB-INF/views/customer/view.jsp").forward(request, response);
+            request.setAttribute("customer", customer);
+            request.getRequestDispatcher("/WEB-INF/views/customer/view.jsp").forward(request, response);
+
+        } else if (pathInfo.equals("/delete")) {
+            // Delete customer
+            String accountNumber = request.getParameter("accountNumber");
+
+            if (customerDAO.deleteCustomer(accountNumber)) {
+                request.setAttribute("success", "Customer deleted successfully!");
             } else {
-                request.setAttribute("error", "Customer not found");
-                List<Customer> customers = customerDAO.getAllCustomers();
-                request.setAttribute("customers", customers);
-                request.getRequestDispatcher("/WEB-INF/views/customer/list.jsp").forward(request, response);
+                request.setAttribute("error", "Failed to delete customer.");
             }
+
+            // Refresh list after delete
+            List<Customer> customers = customerDAO.getAllCustomers();
+            request.setAttribute("customers", customers);
+            request.getRequestDispatcher("/WEB-INF/views/customer/list.jsp").forward(request, response);
         }
     }
 
@@ -65,59 +66,30 @@ public class CustomerServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
 
         if (pathInfo.equals("/add")) {
-            // Add new customer
-            String accountNumber = request.getParameter("accountNumber");
+            // Add new customer - UPDATED: Account number is now auto-generated
             String name = request.getParameter("name");
             String address = request.getParameter("address");
             String phone = request.getParameter("phone");
-            int unitsConsumed = 0; // Default value
-            
-              try {
-            String unitsConsumedStr = request.getParameter("unitsConsumed");
-            if (unitsConsumedStr != null && !unitsConsumedStr.isEmpty()) {
-                unitsConsumed = Integer.parseInt(unitsConsumedStr);
-            }
-        } catch (NumberFormatException e) {
-            request.setAttribute("error", "Invalid units consumed value");
-            request.getRequestDispatcher("/WEB-INF/views/customer/add.jsp").forward(request, response);
-            return;
-        }
+            int unitsConsumed = Integer.parseInt(request.getParameter("unitsConsumed"));
 
-             // Check if account number already exists
-        if (customerDAO.getCustomerByAccountNumber(accountNumber) != null) {
-            request.setAttribute("error", "Account number already exists");
-            request.getRequestDispatcher("/WEB-INF/views/customer/add.jsp").forward(request, response);
-            return;
-        }
-
-            Customer customer = new Customer(accountNumber, name, address, phone, unitsConsumed);
+            // Use new constructor without account number (it will be auto-generated)
+            Customer customer = new Customer(name, address, phone, unitsConsumed);
 
             if (customerDAO.addCustomer(customer)) {
-                request.setAttribute("success", "Customer added successfully!");
-                response.sendRedirect(request.getContextPath() + "/customer/");
-                return;
+                request.setAttribute("success", "Customer added successfully! Account Number: " + customer.getAccountNumber());
+                request.setAttribute("generatedAccountNumber", customer.getAccountNumber());
             } else {
                 request.setAttribute("error", "Failed to add customer. Please try again.");
             }
             request.getRequestDispatcher("/WEB-INF/views/customer/add.jsp").forward(request, response);
 
         } else if (pathInfo.equals("/update")) {
-            // Update customer
+            // Update customer - account number remains unchanged
             String accountNumber = request.getParameter("accountNumber");
             String name = request.getParameter("name");
             String address = request.getParameter("address");
             String phone = request.getParameter("phone");
-            int unitsConsumed = 0;
-            
-            try {
-                unitsConsumed = Integer.parseInt(request.getParameter("unitsConsumed"));
-            } catch (NumberFormatException e) {
-                request.setAttribute("error", "Invalid units consumed value");
-                Customer customer = customerDAO.getCustomerByAccountNumber(accountNumber);
-                request.setAttribute("customer", customer);
-                request.getRequestDispatcher("/WEB-INF/views/customer/edit.jsp").forward(request, response);
-                return;
-            }
+            int unitsConsumed = Integer.parseInt(request.getParameter("unitsConsumed"));
 
             Customer customer = new Customer(accountNumber, name, address, phone, unitsConsumed);
 
