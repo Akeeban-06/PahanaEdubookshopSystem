@@ -11,6 +11,15 @@ public class Customer {
     // Constructors
     public Customer() {}
     
+    // Updated constructor - account number will be auto-generated, so removed from constructor
+    public Customer(String name, String address, String phone, int unitsConsumed) {
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.unitsConsumed = unitsConsumed;
+    }
+    
+    // Keep old constructor for backward compatibility (if needed)
     public Customer(String accountNumber, String name, String address, String phone, int unitsConsumed) {
         this.accountNumber = accountNumber;
         this.name = name;
@@ -20,63 +29,21 @@ public class Customer {
     }
     
     // Getters and Setters
-    public int getCustomerId() { 
-        return customerId; 
-    }
+    public int getCustomerId() { return customerId; }
+    public void setCustomerId(int customerId) { this.customerId = customerId; }
     
-    public void setCustomerId(int customerId) { 
-        this.customerId = customerId; 
-    }
+    public String getAccountNumber() { return accountNumber; }
+    public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
     
-    public String getAccountNumber() { 
-        return accountNumber; 
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
     
-    public void setAccountNumber(String accountNumber) { 
-        this.accountNumber = accountNumber; 
-    }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
     
-    public String getName() { 
-        return name; 
-    }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
     
-    public void setName(String name) { 
-        this.name = name; 
-    }
-    
-    public String getAddress() { 
-        return address; 
-    }
-    
-    public void setAddress(String address) { 
-        this.address = address; 
-    }
-    
-    public String getPhone() { 
-        return phone; 
-    }
-    
-    public void setPhone(String phone) { 
-        this.phone = phone; 
-    }
-    
-    public int getUnitsConsumed() { 
-        return unitsConsumed; 
-    }
-    
-    public void setUnitsConsumed(int unitsConsumed) { 
-        this.unitsConsumed = unitsConsumed; 
-    }
-    
-    @Override
-    public String toString() {
-        return "Customer{" +
-                "customerId=" + customerId +
-                ", accountNumber='" + accountNumber + '\'' +
-                ", name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", phone='" + phone + '\'' +
-                ", unitsConsumed=" + unitsConsumed +
-                '}';
-    }
+    public int getUnitsConsumed() { return unitsConsumed; }
+    public void setUnitsConsumed(int unitsConsumed) { this.unitsConsumed = unitsConsumed; }
 }
