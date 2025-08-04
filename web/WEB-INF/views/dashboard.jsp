@@ -7,147 +7,192 @@
         return;
     }
 %>
+
+
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Dashboard - Pahana Edu Bookshop</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .dashboard-card { 
-            transition: transform 0.3s; 
-            border: none; 
-            border-radius: 15px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
         }
-        .dashboard-card:hover { transform: translateY(-5px); }
-        .navbar-brand { font-weight: bold; }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .dashboard-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%);
+            backdrop-filter: blur(10px);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .nav-gradient {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        }
+        
+        .icon-container {
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-card:hover .icon-container {
+            transform: scale(1.1);
+        }
     </style>
 </head>
-<body class="bg-light">
+<body class="bg-gray-50 min-h-screen">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-book-open me-2"></i>Pahana Edu Bookshop
-            </a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">Welcome, <%= currentUser.getUsername() %>!</span>
-                <a class="btn btn-outline-light btn-sm" href="${pageContext.request.contextPath}/logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+    <nav class="nav-gradient text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-white/20">
+                        <i class="ri-book-open-line text-xl"></i>
+                    </div>
+                    <a href="#" class="flex items-center space-x-2">
+                        <span class="font-bold text-xl tracking-tight">Pahana Edu Bookshop</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="hidden md:flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-full">
+                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                            <i class="ri-user-line"></i>
+                        </div>
+                        <span class="font-medium"><%= currentUser.getUsername() %></span>
+                    </div>
+                    <a href="${pageContext.request.contextPath}/logout" class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full transition-colors duration-200">
+                        <i class="ri-logout-box-r-line"></i>
+                        <span class="hidden sm:inline">Logout</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="mb-4">Dashboard</h1>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header with greeting -->
+        <div class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Welcome back, <span class="text-primary-600"><%= currentUser.getUsername() %></span></h1>
+            <p class="text-gray-500 mt-2">Here's what's happening with your store</p>
+        </div>
+            
+        <!-- Quick Actions -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Customer Management -->
+                <a href="${pageContext.request.contextPath}/customer/" class="dashboard-card rounded-xl shadow-md overflow-hidden border border-gray-100">
+                    <div class="p-6 text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 text-blue-600 mb-4 icon-container">
+                            <i class="ri-group-line text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Customer Management</h3>
+                        <p class="text-gray-500 text-sm mb-4">Add, edit, and manage customer accounts</p>
+                        <div class="text-blue-600 text-sm font-medium flex items-center justify-center">
+                            Go to customers <i class="ri-arrow-right-line ml-1"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Item Management -->
+                <a href="${pageContext.request.contextPath}/item/" class="dashboard-card rounded-xl shadow-md overflow-hidden border border-gray-100">
+                    <div class="p-6 text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 text-green-600 mb-4 icon-container">
+                            <i class="ri-book-open-line text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Item Management</h3>
+                        <p class="text-gray-500 text-sm mb-4">Manage books, stationery and inventory</p>
+                        <div class="text-green-600 text-sm font-medium flex items-center justify-center">
+                            Go to items <i class="ri-arrow-right-line ml-1"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Billing -->
+                <a href="${pageContext.request.contextPath}/bill/create" class="dashboard-card rounded-xl shadow-md overflow-hidden border border-gray-100">
+                    <div class="p-6 text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 text-yellow-600 mb-4 icon-container">
+                            <i class="ri-bill-line text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Billing System</h3>
+                        <p class="text-gray-500 text-sm mb-4">Create bills and manage transactions</p>
+                        <div class="text-yellow-600 text-sm font-medium flex items-center justify-center">
+                            Create bill <i class="ri-arrow-right-line ml-1"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Help -->
+                <a href="${pageContext.request.contextPath}/help" class="dashboard-card rounded-xl shadow-md overflow-hidden border border-gray-100">
+                    <div class="p-6 text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mb-4 icon-container">
+                            <i class="ri-question-line text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Help & Support</h3>
+                        <p class="text-gray-500 text-sm mb-4">System usage guidelines and support</p>
+                        <div class="text-red-600 text-sm font-medium flex items-center justify-center">
+                            Get help <i class="ri-arrow-right-line ml-1"></i>
+                        </div>
+                    </div>
+                </a>
             </div>
         </div>
-
-        <div class="row g-4">
-            <!-- Customer Management -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-users fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="card-title">Customer Management</h5>
-                        <p class="card-text">Add, edit, and manage customer accounts</p>
-                        <a href="${pageContext.request.contextPath}/customer/" class="btn btn-primary">
-                            <i class="fas fa-arrow-right"></i> Manage Customers
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Item Management -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-box fa-3x text-success"></i>
-                        </div>
-                        <h5 class="card-title">Item Management</h5>
-                        <p class="card-text">Manage books, stationery and inventory</p>
-                        <a href="${pageContext.request.contextPath}/item/" class="btn btn-success">
-                            <i class="fas fa-arrow-right"></i> Manage Items
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Billing -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-receipt fa-3x text-warning"></i>
-                        </div>
-                        <h5 class="card-title">Billing System</h5>
-                        <p class="card-text">Create bills and manage transactions</p>
-                        <a href="${pageContext.request.contextPath}/bill/create" class="btn btn-warning">
-                            <i class="fas fa-arrow-right"></i> Create Bill
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reports -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-chart-bar fa-3x text-info"></i>
-                        </div>
-                        <h5 class="card-title">Reports</h5>
-                        <p class="card-text">View sales reports and analytics</p>
-                        <a href="#" class="btn btn-info">
-                            <i class="fas fa-arrow-right"></i> View Reports
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-cog fa-3x text-secondary"></i>
-                        </div>
-                        <h5 class="card-title">Settings</h5>
-                        <p class="card-text">System configuration and preferences</p>
-                        <a href="#" class="btn btn-secondary">
-                            <i class="fas fa-arrow-right"></i> Settings
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Help -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-question-circle fa-3x text-danger"></i>
-                        </div>
-                        <h5 class="card-title">Help & Support</h5>
-                        <p class="card-text">System usage guidelines and support</p>
-                        <a href="${pageContext.request.contextPath}/help" class="btn btn-danger">
-                            <i class="fas fa-arrow-right"></i> Get Help
-                        </a>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<% String successMessage = (String) request.getAttribute("loginSuccess"); %>
+<% if (successMessage != null) { %>
+    <div id="loginSuccessMsg" class="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded relative shadow-md mb-4 transition-opacity duration-500 ease-in-out">
+        <strong class="font-bold">Success! </strong>
+        <span class="block sm:inline"><%= successMessage %></span>
+    </div>
+
+    <script>
+        // Auto-hide the message after 3 seconds
+        setTimeout(function () {
+            const msg = document.getElementById("loginSuccessMsg");
+            if (msg) {
+                msg.classList.add("opacity-0");
+                setTimeout(() => msg.remove(), 500); // remove after fade-out
+            }
+        }, 3000);
+    </script>
+<% } %>
