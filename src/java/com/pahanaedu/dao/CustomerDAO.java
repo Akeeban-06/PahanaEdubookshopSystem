@@ -8,31 +8,39 @@ import java.util.List;
 
 public class CustomerDAO {
     
-    public boolean addCustomer(Customer customer) {
-    String sql = "INSERT INTO customers (account_number, name, address, phone, units_consumed) VALUES (?, ?, ?, ?, ?)";
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-        
-        stmt.setString(1, customer.getAccountNumber());
-        stmt.setString(2, customer.getName());
-        stmt.setString(3, customer.getAddress());
-        stmt.setString(4, customer.getPhone());
-        stmt.setInt(5, customer.getUnitsConsumed()); // This was missing
-        
-        return stmt.executeUpdate() > 0;
-    } catch (SQLException e) {
-        e.printStackTrace();
-        // Check for duplicate entry error
-        if (e.getMessage().contains("Duplicate entry")) {
-            throw new RuntimeException("Account number already exists");
+    // NEW METHOD: Generate next account number automatically
+    private String generateNextAccountNumber() {
+        String sql = "SELECT account_number FROM customers WHERE account_number LIKE 'ACC%' ORDER BY account_number DESC LIMIT 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                String lastAccountNumber = rs.getString("account_number");
+                // Extract number part from ACC001, ACC002, etc.
+                String numberPart = lastAccountNumber.substring(3); // Remove "ACC"
+                int nextNumber = Integer.parseInt(numberPart) + 1;
+                // Format with leading zeros (ACC001, ACC002, etc.)
+                return String.format("ACC%03d", nextNumber);
+            } else {
+                // First customer - start with ACC001
+                return "ACC001";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Fallback - generate based on timestamp
+            return "ACC" + String.format("%03d", (int)(System.currentTimeMillis() % 1000));
         }
     }
-    return false;
-}
     
-    public boolean updateCustomer(Customer customer) {
-        String sql = "UPDATE customers SET account_number = ?, name = ?, address = ?, " +
-                     "phone = ?, units_consumed = ? WHERE customer_id = ?";
+    // UPDATED METHOD: addCustomer now auto-generates account number
+    public boolean addCustomer(Customer customer) {
+        // Generate account number automatically
+        String accountNumber = generateNextAccountNumber();
+        customer.setAccountNumber(accountNumber);
+        
+        String sql = "INSERT INTO customers (account_number, name, address, phone, units_consumed) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
@@ -40,9 +48,9 @@ public class CustomerDAO {
             stmt.setString(2, customer.getName());
             stmt.setString(3, customer.getAddress());
             stmt.setString(4, customer.getPhone());
-            //stmt.setString(5, customer.getEmail());
-            stmt.setInt(6, customer.getUnitsConsumed());
-            stmt.setInt(7, customer.getCustomerId());
+            stmt.setInt(5, customer.getUnitsConsumed());
+            
+            System.out.println("Generated account number: " + accountNumber); // Debug log
             
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -51,21 +59,22 @@ public class CustomerDAO {
         return false;
     }
     
-    public Customer getCustomerById(int customerId) {
-        String sql = "SELECT * FROM customers WHERE customer_id = ?";
+    public boolean updateCustomer(Customer customer) {
+        String sql = "UPDATE customers SET name = ?, address = ?, phone = ?, units_consumed = ? WHERE account_number = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setInt(1, customerId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return extractCustomerFromResultSet(rs);
-                }
-            }
+            stmt.setString(1, customer.getName());
+            stmt.setString(2, customer.getAddress());
+            stmt.setString(3, customer.getPhone());
+            stmt.setInt(4, customer.getUnitsConsumed());
+            stmt.setString(5, customer.getAccountNumber());
+            
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
     
     public Customer getCustomerByAccountNumber(String accountNumber) {
@@ -74,10 +83,41 @@ public class CustomerDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, accountNumber);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return extractCustomerFromResultSet(rs);
-                }
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                Customer customer = new Customer();
+                customer.setCustomerId(rs.getInt("customer_id"));
+                customer.setAccountNumber(rs.getString("account_number"));
+                customer.setName(rs.getString("name"));
+                customer.setAddress(rs.getString("address"));
+                customer.setPhone(rs.getString("phone"));
+                customer.setUnitsConsumed(rs.getInt("units_consumed"));
+                return customer;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public Customer getCustomerById(int customerId) {
+        String sql = "SELECT * FROM customers WHERE customer_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, customerId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                Customer customer = new Customer();
+                customer.setCustomerId(rs.getInt("customer_id"));
+                customer.setAccountNumber(rs.getString("account_number"));
+                customer.setName(rs.getString("name"));
+                customer.setAddress(rs.getString("address"));
+                customer.setPhone(rs.getString("phone"));
+                customer.setUnitsConsumed(rs.getInt("units_consumed"));
+                return customer;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -87,14 +127,21 @@ public class CustomerDAO {
     
     public List<Customer> getAllCustomers() {
         List<Customer> customers = new ArrayList<>();
-        String sql = "SELECT * FROM customers ORDER BY name";
+        String sql = "SELECT * FROM customers ORDER BY account_number";
         
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             
             while (rs.next()) {
-                customers.add(extractCustomerFromResultSet(rs));
+                Customer customer = new Customer();
+                customer.setCustomerId(rs.getInt("customer_id"));
+                customer.setAccountNumber(rs.getString("account_number"));
+                customer.setName(rs.getString("name"));
+                customer.setAddress(rs.getString("address"));
+                customer.setPhone(rs.getString("phone"));
+                customer.setUnitsConsumed(rs.getInt("units_consumed"));
+                customers.add(customer);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -102,50 +149,16 @@ public class CustomerDAO {
         return customers;
     }
     
-    public boolean deleteCustomer(int customerId) {
-        String sql = "DELETE FROM customers WHERE customer_id = ?";
+    public boolean deleteCustomer(String accountNumber) {
+        String sql = "DELETE FROM customers WHERE account_number = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setInt(1, customerId);
+            stmt.setString(1, accountNumber);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
-    }
-    
-    public List<Customer> searchCustomers(String searchTerm) {
-        List<Customer> customers = new ArrayList<>();
-        String sql = "SELECT * FROM customers WHERE name LIKE ? OR account_number LIKE ? ORDER BY name";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            String likeTerm = "%" + searchTerm + "%";
-            stmt.setString(1, likeTerm);
-            stmt.setString(2, likeTerm);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    customers.add(extractCustomerFromResultSet(rs));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return customers;
-    }
-    
-    private Customer extractCustomerFromResultSet(ResultSet rs) throws SQLException {
-        Customer customer = new Customer();
-        customer.setCustomerId(rs.getInt("customer_id"));
-        customer.setAccountNumber(rs.getString("account_number"));
-        customer.setName(rs.getString("name"));
-        customer.setAddress(rs.getString("address"));
-        customer.setPhone(rs.getString("phone"));
-       // customer.setEmail(rs.getString("email"));
-        customer.setUnitsConsumed(rs.getInt("units_consumed"));
-        return customer;
     }
 }
