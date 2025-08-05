@@ -48,6 +48,21 @@
             box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
         }
         
+        /* Payment method styles */
+        .payment-option {
+            transition: all 0.2s ease;
+        }
+        
+        .payment-option:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .payment-option input[type="radio"]:checked + .payment-content {
+            border-color: #0ea5e9;
+            background-color: #eff6ff;
+        }
+        
         /* Toast notification styles */
         .toast {
             position: fixed;
@@ -220,6 +235,51 @@
                         </div>
                     </div>
                     
+                    <!-- Payment Method Selection -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-medium text-gray-800 flex items-center">
+                            <i class="ri-money-dollar-circle-line text-green-500 mr-2"></i> Payment Method
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Cash Payment -->
+                            <label class="payment-option cursor-pointer">
+                                <input type="radio" name="paymentMethod" value="Cash" class="sr-only" checked>
+                                <div class="payment-content border-2 border-gray-200 rounded-lg p-4 bg-white">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                <i class="ri-money-dollar-box-line text-green-600 text-xl"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h4 class="text-sm font-medium text-gray-900">Cash Payment</h4>
+                                            <p class="text-sm text-gray-500">Direct cash payment</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <!-- Card Payment -->
+                            <label class="payment-option cursor-pointer">
+                                <input type="radio" name="paymentMethod" value="Card" class="sr-only">
+                                <div class="payment-content border-2 border-gray-200 rounded-lg p-4 bg-white">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <i class="ri-bank-card-line text-blue-600 text-xl"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h4 class="text-sm font-medium text-gray-900">Card Payment</h4>
+                                            <p class="text-sm text-gray-500">Credit/Debit card payment</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
                     <!-- Total Section -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div></div> <!-- Empty column for alignment -->
@@ -248,6 +308,32 @@
     </div>
 
     <script>
+        // Payment method selection
+        document.querySelectorAll('input[name="paymentMethod"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                // Remove selected state from all options
+                document.querySelectorAll('.payment-content').forEach(function(content) {
+                    content.classList.remove('border-blue-500', 'bg-blue-50');
+                    content.classList.add('border-gray-200', 'bg-white');
+                });
+                
+                // Add selected state to chosen option
+                if (this.checked) {
+                    const content = this.nextElementSibling;
+                    content.classList.remove('border-gray-200', 'bg-white');
+                    content.classList.add('border-blue-500', 'bg-blue-50');
+                }
+            });
+        });
+        
+        // Initialize default selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const defaultRadio = document.querySelector('input[name="paymentMethod"]:checked');
+            if (defaultRadio) {
+                defaultRadio.dispatchEvent(new Event('change'));
+            }
+        });
+
         function addItem() {
             const container = document.getElementById('itemsContainer');
             const newRow = container.querySelector('.item-row').cloneNode(true);

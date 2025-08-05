@@ -8,6 +8,7 @@
 <%
     Bill bill = (Bill) request.getAttribute("bill");
     Customer customer = (Customer) request.getAttribute("customer");
+    String paymentMethod = (String) request.getAttribute("paymentMethod");
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login");
@@ -40,6 +41,27 @@
         
         .invoice-header {
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+        
+        .payment-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .payment-cash {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .payment-card {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
         }
         
         @media print {
@@ -145,6 +167,31 @@
                                         Paid
                                     </span>
                                 </p>
+                                <p><span class="font-medium">Payment Method:</span>
+                                    <% if (paymentMethod != null) { %>
+                                        <% if ("Cash".equals(paymentMethod)) { %>
+                                            <span class="payment-badge payment-cash">
+                                                <i class="ri-money-dollar-box-line mr-1"></i>
+                                                Cash
+                                            </span>
+                                        <% } else if ("Card".equals(paymentMethod)) { %>
+                                            <span class="payment-badge payment-card">
+                                                <i class="ri-bank-card-line mr-1"></i>
+                                                Card
+                                            </span>
+                                        <% } else { %>
+                                            <span class="payment-badge" style="background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db;">
+                                                <i class="ri-question-line mr-1"></i>
+                                                <%= paymentMethod %>
+                                            </span>
+                                        <% } %>
+                                    <% } else { %>
+                                        <span class="payment-badge" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;">
+                                            <i class="ri-error-warning-line mr-1"></i>
+                                            Unknown
+                                        </span>
+                                    <% } %>
+                                </p>
                             </div>
                         </div>
                         <div>
@@ -210,6 +257,16 @@
                                 <div class="flex justify-between border-t border-gray-200 pt-2">
                                     <span class="font-bold">Total Amount:</span>
                                     <span class="font-bold text-blue-600">Rs. <%= bill.getTotalAmount() %></span>
+                                </div>
+                                <div class="flex justify-between text-sm text-gray-600">
+                                    <span>Payment Method:</span>
+                                    <span class="font-medium">
+                                        <% if (paymentMethod != null) { %>
+                                            <%= paymentMethod %>
+                                        <% } else { %>
+                                            Unknown
+                                        <% } %>
+                                    </span>
                                 </div>
                             </div>
                         </div>
