@@ -109,11 +109,74 @@ public class BillDAO {
         return billItems;
     }
     
-    // Additional method to get all bills (useful for dashboard)
-    public List<Bill> getAllBills() {
+    /**
+     * Get payment information for a specific bill
+     */
+    public String getPaymentMethod(int billId) {
+        String sql = "SELECT payment_method FROM payments WHERE bill_id = ? ORDER BY payment_date DESC LIMIT 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, billId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getString("payment_method");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    /**
+     * Get payment status for a specific bill
+     */
+    public String getPaymentStatus(int billId) {
+        String sql = "SELECT payment_status FROM payments WHERE bill_id = ? ORDER BY payment_date DESC LIMIT 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, billId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getString("payment_status");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Unknown";
+    }
+    
+    /**
+     * Create a payment record
+     */
+    public boolean createPayment(int billId, BigDecimal amount, String paymentMethod) {
+        String sql = "INSERT INTO payments (bill_id, amount_paid, payment_method, payment_status) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, billId);
+            stmt.setBigDecimal(2, amount);
+            stmt.setString(3, paymentMethod);
+            stmt.setString(4, "Successful"); // Default to successful
+            
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    // Additional method to get all bills with payment info (useful for dashboard)
+    public List<Bill> getAllBillsWithPayment() {
         List<Bill> bills = new ArrayList<>();
-        String sql = "SELECT b.*, c.name as customer_name FROM bills b " +
-                    "JOIN customers c ON b.customer_id = c.customer_id ORDER BY b.bill_date DESC";
+        String sql = "SELECT b.*, c.name as customer_name, p.payment_method, p.payment_status " +
+                    "FROM bills b " +
+                    "JOIN customers c ON b.customer_id = c.customer_id " +
+                    "LEFT JOIN payments p ON b.bill_id = p.bill_id " +
+                    "ORDER BY b.bill_date DESC";
         
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -131,5 +194,10 @@ public class BillDAO {
             e.printStackTrace();
         }
         return bills;
+    }
+    
+    // Legacy method to maintain compatibility
+    public List<Bill> getAllBills() {
+        return getAllBillsWithPayment();
     }
 }

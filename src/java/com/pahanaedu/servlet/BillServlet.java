@@ -14,8 +14,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import com.pahanaedu.util.DatabaseConnection;
 
 @WebServlet("/bill/*")
 public class BillServlet extends HttpServlet {
@@ -36,22 +40,27 @@ public class BillServlet extends HttpServlet {
             request.setAttribute("items", items);
             request.getRequestDispatcher("/WEB-INF/views/bill/create.jsp").forward(request, response);
         } else if (pathInfo.equals("/view")) {
-            // View bill details - FIXED VERSION
+            // View bill details
             int billId = Integer.parseInt(request.getParameter("billId"));
             Bill bill = billDAO.getBillById(billId);
             
             if (bill != null) {
-                // FIXED: Use getCustomerById instead of getCustomerByAccountNumber
+                // Get customer information
                 Customer customer = customerDAO.getCustomerById(bill.getCustomerId());
+                
+                // Get payment information
+                String paymentMethod = getPaymentMethod(billId);
                 
                 // Debug logging (you can remove these after testing)
                 System.out.println("Bill ID: " + billId);
                 System.out.println("Bill found: " + (bill != null));
                 System.out.println("Bill items count: " + (bill.getBillItems() != null ? bill.getBillItems().size() : 0));
                 System.out.println("Customer found: " + (customer != null));
+                System.out.println("Payment method: " + paymentMethod);
                 
                 request.setAttribute("bill", bill);
                 request.setAttribute("customer", customer);
+                request.setAttribute("paymentMethod", paymentMethod);
                 request.getRequestDispatcher("/WEB-INF/views/bill/view.jsp").forward(request, response);
             } else {
                 request.setAttribute("error", "Bill not found");
@@ -68,10 +77,11 @@ public class BillServlet extends HttpServlet {
         if (pathInfo.equals("/create")) {
             // Create new bill
             int customerId = Integer.parseInt(request.getParameter("customerId"));
+            String paymentMethod = request.getParameter("paymentMethod");
             String[] itemIds = request.getParameterValues("itemId");
             String[] quantities = request.getParameterValues("quantity");
             
-            if (itemIds != null && quantities != null) {
+            if (itemIds != null && quantities != null && paymentMethod != null) {
                 BigDecimal totalAmount = BigDecimal.ZERO;
                 List<BillItem> billItems = new ArrayList<>();
                 
@@ -112,8 +122,15 @@ public class BillServlet extends HttpServlet {
                                 item.getStock() - billItem.getQuantity());
                         }
                         
-                        response.sendRedirect(request.getContextPath() + 
-                            "/bill/view?billId=" + billId + "&success=Bill created successfully");
+                        // Create payment record
+                        if (createPaymentRecord(billId, totalAmount, paymentMethod)) {
+                            response.sendRedirect(request.getContextPath() + 
+                                "/bill/view?billId=" + billId + "&success=Bill created successfully");
+                        } else {
+                            request.setAttribute("error", "Bill created but payment record failed.");
+                            response.sendRedirect(request.getContextPath() + 
+                                "/bill/view?billId=" + billId + "&success=Bill created successfully");
+                        }
                     } else {
                         request.setAttribute("error", "Failed to create bill.");
                         doGet(request, response);
@@ -123,9 +140,52 @@ public class BillServlet extends HttpServlet {
                     doGet(request, response);
                 }
             } else {
-                request.setAttribute("error", "Please select items and quantities.");
+                request.setAttribute("error", "Please select items, quantities, and payment method.");
                 doGet(request, response);
             }
         }
+    }
+    
+    /**
+     * Create a payment record in the payments table
+     */
+    private boolean createPaymentRecord(int billId, BigDecimal amount, String paymentMethod) {
+        String sql = "INSERT INTO payments (bill_id, amount_paid, payment_method, payment_status) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, billId);
+            stmt.setBigDecimal(2, amount);
+            stmt.setString(3, paymentMethod);
+            stmt.setString(4, "Successful"); // Assuming all payments are successful for now
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * Get payment method for a specific bill
+     */
+    private String getPaymentMethod(int billId) {
+        String sql = "SELECT payment_method FROM payments WHERE bill_id = ? LIMIT 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, billId);
+            var rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getString("payment_method");
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Unknown";
     }
 }
