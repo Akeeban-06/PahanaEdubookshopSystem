@@ -302,13 +302,6 @@
                                     </ol>
                                 </div>
                                 
-                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                    <h4 class="font-semibold text-gray-800 mb-2 flex items-center">
-                                        <i class="ri-lightbulb-flash-line text-yellow-500 mr-2"></i> Pro Tip
-                                    </h4>
-                                    <p class="text-gray-600">Use the bulk import feature to add multiple customers at once. Download the template file from the customer management page.</p>
-                                </div>
-                                
                                 <div>
                                     <h4 class="font-semibold text-gray-800 mb-2">Editing Customer Information:</h4>
                                     <ol class="list-decimal pl-5 space-y-2 text-gray-600">
@@ -320,7 +313,7 @@
                                 
                                 <div>
                                     <h4 class="font-semibold text-gray-800 mb-2">Viewing Customer Details:</h4>
-                                    <p class="text-gray-600">Click the view (eye) icon from the Customer List to see complete customer information including purchase history and account balance.</p>
+                                    <p class="text-gray-600">Click the view (eye) icon from the Customer List to see complete customer information.</p>
                                 </div>
                             </div>
                         </div>
@@ -362,11 +355,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
-<!--                                <div class="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-lg">
-                                    <h4 class="font-medium text-purple-800 mb-2">Barcode Integration</h4>
-                                    <p class="text-purple-700">You can scan barcodes directly using our mobile app to quickly add items to inventory. Download the Pahana Edu Scanner app from the App Store or Google Play.</p>
-                                </div>-->
                                 
                                 <div>
                                     <h4 class="font-semibold text-gray-800 mb-2">Updating Items:</h4>
@@ -478,24 +466,6 @@
                                                 <p class="text-gray-600 text-sm">Generate bills, manage transactions, and print receipts</p>
                                             </div>
                                         </div>
-<!--                                        <div class="flex items-start bg-gray-50 p-3 rounded-lg">
-                                            <div class="flex-shrink-0 bg-blue-100 p-2 rounded-lg text-blue-600">
-                                                <i class="ri-line-chart-line text-lg"></i>
-                                            </div>
-                                            <div class="ml-3">
-                                                <h5 class="font-medium text-gray-700">Reports & Analytics</h5>
-                                                <p class="text-gray-600 text-sm">Generate sales reports and business insights</p>
-                                            </div>
-                                        </div>-->
-<!--                                        <div class="flex items-start bg-gray-50 p-3 rounded-lg">
-                                            <div class="flex-shrink-0 bg-blue-100 p-2 rounded-lg text-blue-600">
-                                                <i class="ri-cloud-line text-lg"></i>
-                                            </div>
-                                            <div class="ml-3">
-                                                <h5 class="font-medium text-gray-700">Cloud Backup</h5>
-                                                <p class="text-gray-600 text-sm">Automatic daily backups of all your data</p>
-                                            </div>
-                                        </div>-->
                                     </div>
                                 </div>
                                 
@@ -528,7 +498,7 @@
                                         <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
                                             <h5 class="font-medium text-red-800 mb-2">Login Problems:</h5>
                                             <ul class="list-disc pl-5 text-red-700">
-                                                <li>Check username and password (default: admin/admin123)</li>
+                                                <li>Check username and password</li>
                                                 <li>Ensure caps lock is off</li>
                                                 <li>Clear browser cache if needed</li>
                                                 <li>Try resetting your password</li>
@@ -551,7 +521,6 @@
                                         <h5 class="font-medium text-gray-700 mb-2">Customer Registration Issues:</h5>
                                         <ul class="list-disc pl-5 text-gray-600">
                                             <li>Ensure all required fields are filled</li>
-                                            <li>Check for duplicate account numbers</li>
                                             <li>Verify email format if email is provided</li>
                                             <li>Ensure phone numbers contain only digits</li>
                                         </ul>
@@ -562,7 +531,6 @@
                                             <li>Check for special characters in item names</li>
                                             <li>Ensure prices are numeric values</li>
                                             <li>Stock quantities must be whole numbers</li>
-                                            <li>Verify barcode format if used</li>
                                         </ul>
                                     </div>
                                 </div>
