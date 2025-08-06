@@ -68,20 +68,25 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Navigation -->
-    <nav class="nav-gradient text-white shadow-lg">
+     <nav class="nav-gradient text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
+            <div class="flex justify-between h-20 items-center">
                 <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/20">
-                        <i class="ri-book-open-line text-lg"></i>
-                    </div>
                     <a href="${pageContext.request.contextPath}/dashboard" class="flex items-center space-x-2">
-                        <span class="font-bold text-lg tracking-tight">Pahana Edu Bookshop</span>
+                        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-white/20">
+                            <i class="ri-book-open-line text-xl"></i>
+                        </div>
+                        <span class="font-bold text-xl tracking-tight">Pahana Edu Bookshop</span>
                     </a>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span class="hidden md:inline font-medium"><%= currentUser.getUsername() %></span>
-                    <a href="${pageContext.request.contextPath}/logout" class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-colors duration-200">
+                <div class="flex items-center space-x-6">
+                    <div class="hidden md:flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-full">
+                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                            <i class="ri-user-line"></i>
+                        </div>
+                        <span class="font-medium"><%= currentUser.getUsername() %></span>
+                    </div>
+                    <a href="${pageContext.request.contextPath}/logout" class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full transition-colors duration-200">
                         <i class="ri-logout-box-r-line"></i>
                         <span class="hidden sm:inline">Logout</span>
                     </a>
