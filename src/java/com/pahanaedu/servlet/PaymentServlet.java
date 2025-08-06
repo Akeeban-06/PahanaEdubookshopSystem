@@ -34,6 +34,13 @@ public class PaymentServlet extends HttpServlet {
             return;
         }
         
+        // Check if user is admin
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null || !"admin".equals(currentUser.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/dashboard?error=access_denied");
+            return;
+        }
+        
         String pathInfo = request.getPathInfo();
         String action = (pathInfo != null && pathInfo.length() > 1) ? pathInfo.substring(1) : "report";
         
@@ -58,6 +65,13 @@ public class PaymentServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        
+        // Check if user is admin
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null || !"admin".equals(currentUser.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/dashboard?error=access_denied");
             return;
         }
         

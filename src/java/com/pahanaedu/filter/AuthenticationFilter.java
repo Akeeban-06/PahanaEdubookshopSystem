@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/dashboard", "/customer/*", "/item/*", "/bill/*", "/help"})
+@WebFilter(urlPatterns = {"/dashboard", "/customer/*", "/item/*", "/bill/*", "/payment/*", "/help"})
 public class AuthenticationFilter implements Filter {
     
     @Override

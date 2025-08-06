@@ -11,6 +11,12 @@
         return;
     }
     
+    // Check if user is admin - redirect if not
+    if (!"admin".equals(currentUser.getRole())) {
+        response.sendRedirect(request.getContextPath() + "/dashboard?error=access_denied");
+        return;
+    }
+    
     List<Payment> payments = (List<Payment>) request.getAttribute("payments");
     String error = (String) request.getAttribute("error");
     String success = request.getParameter("success");
@@ -64,6 +70,7 @@
         .method-cash { background-color: #f0fdf4; color: #166534; }
         .method-card { background-color: #eff6ff; color: #1d4ed8; }
         .method-online { background-color: #f5f3ff; color: #7c3aed; }
+      
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -84,7 +91,10 @@
                         <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                             <i class="ri-user-line"></i>
                         </div>
-                        <span class="font-medium"><%= currentUser.getUsername() %></span>
+                        <div class="flex flex-col">
+                            <span class="font-medium"><%= currentUser.getUsername() %></span>
+                          
+                        </div>
                     </div>
                     <a href="${pageContext.request.contextPath}/logout" class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full transition-colors duration-200">
                         <i class="ri-logout-box-r-line"></i>
@@ -107,7 +117,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <div>
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Payment Report</h1>
-                <p class="text-gray-500 mt-1">View and manage payment records</p>
+                <p class="text-gray-500 mt-1">View and manage payment records - Administrator access required</p>
             </div>
         </div>
 
@@ -234,7 +244,6 @@
     </div>
 
     <script>
-      
         // Auto-hide success messages
         setTimeout(function() {
             const successMsg = document.getElementById('successMsg');
