@@ -160,7 +160,7 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Bill Information</h3>
                             <div class="space-y-1">
-                                <p><span class="font-medium">Invoice #:</span> <%= bill.getBillId() %></p>
+                                <p><span class="font-medium">Invoice No:</span> <%= bill.getBillId() %></p>
                                 <p><span class="font-medium">Date:</span> <%= dateFormat.format(bill.getBillDate()) %></p>
                                 <p><span class="font-medium">Status:</span> 
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -198,7 +198,7 @@
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Customer Information</h3>
                             <div class="space-y-1">
                                 <p><span class="font-medium">Name:</span> <%= customer.getName() %></p>
-                                <p><span class="font-medium">Account #:</span> <%= customer.getAccountNumber() %></p>
+                                <p><span class="font-medium">Account No:</span> <%= customer.getAccountNumber() %></p>
                                 <p><span class="font-medium">Phone:</span> <%= customer.getPhone() != null ? customer.getPhone() : "N/A" %></p>
                             </div>
                         </div>
@@ -274,8 +274,8 @@
                     
                     <!-- Footer -->
                     <div class="mt-8 pt-4 border-t border-gray-200 text-center">
-                        <p class="text-gray-500">Thank you for your business!</p>
-                        <p class="text-xs text-gray-400 mt-2">This is a computer generated invoice.</p>
+                        <p class="text-gray-500">Thank you for your purchase!</p>
+                        <p class="text-xs text-gray-400 mt-2">Contact : Pahanaedu@gmail.com.</p>
                     </div>
                 <% } else { %>
                     <div class="text-center py-8">
