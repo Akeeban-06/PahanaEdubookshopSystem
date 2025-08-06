@@ -28,15 +28,24 @@
         <location>/WEB-INF/views/error/500.jsp</location>
     </error-page>
     
+    <!-- Help Servlet -->
     <servlet>
-    <servlet-name>HelpServlet</servlet-name>
-    <servlet-class>com.pahanaedu.servlet.HelpServlet</servlet-class>
-</servlet>
-
-<servlet-mapping>
-    <servlet-name>HelpServlet</servlet-name>
-    <url-pattern>/help</url-pattern>
-</servlet-mapping>
-
+        <servlet-name>HelpServlet</servlet-name>
+        <servlet-class>com.pahanaedu.servlet.HelpServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HelpServlet</servlet-name>
+        <url-pattern>/help</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Payment Servlet -->
+    <servlet>
+        <servlet-name>PaymentServlet</servlet-name>
+        <servlet-class>com.pahanaedu.servlet.PaymentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PaymentServlet</servlet-name>
+        <url-pattern>/payment/*</url-pattern>
+    </servlet-mapping>
     
 </web-app>

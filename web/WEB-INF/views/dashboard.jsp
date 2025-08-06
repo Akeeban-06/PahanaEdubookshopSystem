@@ -8,10 +8,6 @@
     }
 %>
 
-
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -115,7 +111,7 @@
         <!-- Quick Actions -->
         <div class="mb-8">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- Customer Management -->
                 <a href="${pageContext.request.contextPath}/customer/" class="dashboard-card rounded-xl shadow-md overflow-hidden border border-gray-100">
                     <div class="p-6 text-center">
@@ -154,6 +150,20 @@
                         <p class="text-gray-500 text-sm mb-4">Create bills and manage transactions</p>
                         <div class="text-yellow-600 text-sm font-medium flex items-center justify-center">
                             Create bill <i class="ri-arrow-right-line ml-1"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Payment Report -->
+                <a href="${pageContext.request.contextPath}/payment/report" class="dashboard-card rounded-xl shadow-md overflow-hidden border border-gray-100">
+                    <div class="p-6 text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 text-purple-600 mb-4 icon-container">
+                            <i class="ri-file-chart-line text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Payment Report</h3>
+                        <p class="text-gray-500 text-sm mb-4">View and manage payment records</p>
+                        <div class="text-purple-600 text-sm font-medium flex items-center justify-center">
+                            View payments <i class="ri-arrow-right-line ml-1"></i>
                         </div>
                     </div>
                 </a>
