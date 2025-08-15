@@ -1,11 +1,24 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.pahanaedu.model.User" %>
+<%@ page import="com.pahanaedu.model.Bill" %>
+<%@ page import="com.pahanaedu.model.BillItem" %>
+<%@ page import="com.pahanaedu.model.Customer" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.math.BigDecimal" %>
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
+    
+    // Get dashboard data
+    BigDecimal totalSales = (BigDecimal) request.getAttribute("totalSales");
+    Integer totalBills = (Integer) request.getAttribute("totalBills");
+    Integer totalCustomers = (Integer) request.getAttribute("totalCustomers");
+    Integer totalItems = (Integer) request.getAttribute("totalItems");
 %>
 
 <!DOCTYPE html>
@@ -70,6 +83,12 @@
             .dashboard-card:hover .icon-container {
                 transform: scale(1.1);
             }
+            
+            .stat-card {
+              background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,1) 100%);
+              backdrop-filter: blur(10px);
+              border: 1px solid rgba(255,255,255,0.2);
+          }
 
             .admin-badge {
 /*              background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);*/
@@ -149,6 +168,63 @@
                     </div>
                 </div>
             <% } %>
+            
+            <!-- Statistics Cards -->
+            <div class="mb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Total Sales -->
+                    <div class="stat-card rounded-xl shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Sales</p>
+                                <p class="text-2xl font-bold text-green-600">Rs. <%= String.format("%.2f", totalSales != null ? totalSales : BigDecimal.ZERO) %></p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="ri-money-dollar-circle-line text-2xl text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Bills -->
+                    <div class="stat-card rounded-xl shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Bills</p>
+                                <p class="text-2xl font-bold text-blue-600"><%= totalBills != null ? totalBills : 0 %></p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="ri-file-list-3-line text-2xl text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Customers -->
+                    <div class="stat-card rounded-xl shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Customers</p>
+                                <p class="text-2xl font-bold text-purple-600"><%= totalCustomers != null ? totalCustomers : 0 %></p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="ri-group-line text-2xl text-purple-600"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Items -->
+                    <div class="stat-card rounded-xl shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Items</p>
+                                <p class="text-2xl font-bold text-orange-600"><%= totalItems != null ? totalItems : 0 %></p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="ri-book-open-line text-2xl text-orange-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Quick Actions -->
             <div class="mb-8">
@@ -249,21 +325,21 @@
 </body>
 </html>
 
-<% String successMessage = (String) request.getAttribute("loginSuccess"); %>
-<% if (successMessage != null) { %>
-<div id="loginSuccessMsg" class="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded relative shadow-md mb-4 transition-opacity duration-500 ease-in-out">
-    <strong class="font-bold">Success! </strong>
-    <span class="block sm:inline"><%= successMessage %></span>
-</div>
+  <% String successMessage = (String) request.getAttribute("loginSuccess"); %>
+        <% if (successMessage != null) { %>
+        <div id="loginSuccessMsg" class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-lg shadow-lg transition-opacity duration-500 ease-in-out z-50">
+            <strong class="font-bold">Login Successful! </strong>
+<!--            <span class="block sm:inline"><%= successMessage %></span>-->
+        </div>
 
-<script>
-    // Auto-hide the message after 3 seconds
-    setTimeout(function () {
-        const msg = document.getElementById("loginSuccessMsg");
-        if (msg) {
-            msg.classList.add("opacity-0");
-            setTimeout(() => msg.remove(), 500); // remove after fade-out
-        }
-    }, 3000);
-</script>
+        <script>
+            // Auto-hide the message after 3 seconds
+            setTimeout(function () {
+                const msg = document.getElementById("loginSuccessMsg");
+                if (msg) {
+                    msg.classList.add("opacity-0");
+                    setTimeout(() => msg.remove(), 500); // remove after fade-out
+                }
+            }, 3000);
+        </script>
 <% } %>
